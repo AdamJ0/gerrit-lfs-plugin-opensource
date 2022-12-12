@@ -15,18 +15,24 @@
 package com.googlesource.gerrit.plugins.lfs;
 
 import static com.google.common.truth.Truth.assertThat;
-
 import java.time.Instant;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.junit.Test;
 
 public class LfsDateTimeTest {
+  private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
+
   @Test
   public void format() throws Exception {
-    DateTime now = DateTime.now();
-    String jodaFormat = ISODateTimeFormat.dateTime().withZoneUTC().print(now);
-    String javaFormat = LfsDateTime.format(Instant.ofEpochMilli(now.getMillis()));
-    assertThat(javaFormat).isEqualTo(jodaFormat);
+    Instant now = Instant.now();
+    ZonedDateTime zdt = ZonedDateTime.ofInstant(now, ZoneOffset.UTC);
+    String fixedFormatTime = formatter.format(zdt);
+
+    // we used tom compare JodaTime now comparing ISO Offset zulu javatime to Lfs formatted time.
+    String javaFormat = LfsDateTime.format(now);
+    assertThat(javaFormat).isEqualTo(fixedFormatTime);
   }
 }
